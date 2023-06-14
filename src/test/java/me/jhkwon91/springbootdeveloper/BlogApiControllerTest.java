@@ -2,9 +2,11 @@ package me.jhkwon91.springbootdeveloper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.jhkwon91.springbootdeveloper.domain.Article;
+import me.jhkwon91.springbootdeveloper.domain.User;
 import me.jhkwon91.springbootdeveloper.dto.AddArticleRequest;
 import me.jhkwon91.springbootdeveloper.dto.UpdateArticleRequest;
 import me.jhkwon91.springbootdeveloper.repository.BlogRepository;
+import me.jhkwon91.springbootdeveloper.repository.UserRepository;
 import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,12 +48,19 @@ public class BlogApiControllerTest {
     @Autowired
     BlogRepository blogRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
+    User user;
+
     @BeforeEach
     public void mockMvcSetUp() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
         blogRepository.deleteAll();
     }
 
+
+    
     @DisplayName("addArticle: 블로그 글 추가에 성공한다.")
     @Test
     public void addArticle() throws Exception {
