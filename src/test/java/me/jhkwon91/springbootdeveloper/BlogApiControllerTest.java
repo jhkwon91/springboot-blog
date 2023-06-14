@@ -1,6 +1,7 @@
 package me.jhkwon91.springbootdeveloper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import me.jhkwon91.springbootdeveloper.config.error.ErrorCode;
 import me.jhkwon91.springbootdeveloper.domain.Article;
 import me.jhkwon91.springbootdeveloper.domain.User;
 import me.jhkwon91.springbootdeveloper.dto.AddArticleRequest;
@@ -37,6 +38,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -249,5 +251,33 @@ public class BlogApiControllerTest {
                   .content(requestBody)
         );
         result.andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("findArticle: 잘못된 HTTP 메서드로 아티클을 조회하려고 하면 조회에 실패한다.")
+    @Test
+    public void invalidHttpMethod() throws Exception {
+        final String url = "/api/articles/{id}";
+
+        final ResultActions resultActions = mockMvc.perform(post(url, 1));
+
+        resultActions
+                .andDo(print())
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.message").value(ErrorCode.METHOD_NOT_ALLOWED.getMessage()));
+    }
+
+    @DisplayName("findArticle: 존재하지 않는 아티클을 조회하려고 하면 조회에 실패한다.")
+    @Test
+    public void findArticleInvalidArticle() throws Exception {
+        final String url = "/api/articles/{id}";
+        final long invalidId = 1;
+
+        final ResultActions resultActions = mockMvc.perform(get(url, invalidId));
+
+        resultActions
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(ErrorCode.ARTICLE_NOT_FOUND.getMessage()))
+                .andExpect(jsonPath("$.code").value(ErrorCode.ARTICLE_NOT_FOUND.getCode()));
     }
 }
